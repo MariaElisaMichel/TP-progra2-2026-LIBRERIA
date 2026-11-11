@@ -1,0 +1,22 @@
+package Models;
+
+import Enums.Permiso;
+import Exceptions.DatosInvalidosException;
+
+/**
+ * Vendedor: gestiona libros y ventas.
+ */
+public class Vendedor extends Usuario {
+
+    public Vendedor(String dni, String nombre, String email, String clave)
+            throws DatosInvalidosException {
+        super(dni, nombre, email, clave);
+    }
+
+    @Override
+    public boolean permite(Permiso p) {
+        return p == Permiso.VER_CATALOGO
+                || p == Permiso.GESTIONAR_LIBROS
+                || p == Permiso.GESTIONAR_VENTAS;
+    }
+}

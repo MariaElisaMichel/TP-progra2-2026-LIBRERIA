@@ -1,6 +1,6 @@
 package Interfaces;
 
-import enums.Permiso;
+import Enums.Permiso;
 
 public interface Autorizacion {
     boolean permite(Permiso p);
