@@ -9,9 +9,15 @@ import Exceptions.StockInsuficienteException;
 import Models.Autor;
 import Models.Libro;
 import java.util.List;
+import Enums.EstadoVenta;
+import Enums.MedioPago;
+import Enums.ModalidadEntrega;
+import Models.DetalleVenta;
+import Models.Venta;
+import java.time.LocalDateTime;
 
 void main() {
-   /* try {
+    try {
         Usuario cliente = new Cliente("12345678", "Ana", "ana@mail.com", "1234", "Calle 1");
         Usuario vendedor = new Vendedor("23456789", "Sofía", "sofia@mail.com", "5678");
         Usuario admin = new Administrador("1234567", "Luis", "luis@mail.com", "abcd");
@@ -32,7 +38,7 @@ void main() {
         new Cliente("123", "Pedro", "pedro@mail.com", "1234", "Calle 2");
     } catch (DatosInvalidosException e) {
         System.out.println("Error: " + e.getMessage());
-    }*/
+    }
     try {
         Autor autor = new Autor("20123456", "Julio Cortázar");
         Libro libro = new Libro("9789500429634", "Rayuela", Genero.NOVELA,
@@ -45,6 +51,32 @@ void main() {
     } catch (DatosInvalidosException e) {
         System.out.println("Datos inválidos: " + e.getMessage());
     } catch (StockInsuficienteException e) {
+        System.out.println("Error: " + e.getMessage());
+    }
+
+    try {
+        Cliente comprador = new Cliente("12345678", "Ana", "ana@mail.com", "1234", "Calle 1");
+        Autor autorVenta = new Autor("20123456", "Julio Cortázar");
+        Libro rayuela = new Libro("9789500429634", "Rayuela", Genero.NOVELA,
+                15000, 5, List.of(autorVenta));
+        DetalleVenta detalle = new DetalleVenta(rayuela, 2, rayuela.getPrecio());
+
+        Venta venta = new Venta("V-0001", LocalDateTime.now(), comprador,
+                List.of(detalle), MedioPago.TRANSFERENCIA, ModalidadEntrega.ENVIO,
+                "Calle 1", EstadoVenta.CONFIRMADA, null, null);
+        System.out.println(venta);
+        System.out.println("Total: " + venta.calcularTotal());
+        System.out.println("¿Anulada?: " + venta.estaAnulada());
+
+        Venta anulada = new Venta("V-0003", LocalDateTime.now(), comprador,
+                List.of(detalle), MedioPago.EFECTIVO, ModalidadEntrega.RETIRO,
+                null, EstadoVenta.ANULADA, LocalDateTime.now(), "20123456");
+        System.out.println("V-0003 anulada: " + anulada.estaAnulada());
+
+        new Venta("V-0002", LocalDateTime.now(), comprador, List.of(detalle),
+                MedioPago.EFECTIVO, ModalidadEntrega.ENVIO, "",
+                EstadoVenta.CONFIRMADA, null, null);
+    } catch (DatosInvalidosException e) {
         System.out.println("Error: " + e.getMessage());
     }
 
