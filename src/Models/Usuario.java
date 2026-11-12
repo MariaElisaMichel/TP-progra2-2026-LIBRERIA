@@ -1,27 +1,23 @@
 package Models;
 
+import Enums.Permiso;
 import Exceptions.DatosInvalidosException;
 import Interfaces.Autorizacion;
-import Enums.Permiso;
 
 /**
  * Usuario del sistema. Es abstracta: cada rol decide sus permisos.
  */
-public abstract class Usuario implements Autorizacion {
+public abstract class Usuario extends Persona implements Autorizacion {
 
-    private final String dni;
-    private String nombre;
     private String email;
     private final String clave;
     private boolean activo;
 
     public Usuario(String dni, String nombre, String email, String clave)
             throws DatosInvalidosException {
-        validarDni(dni);
-        validarNombreYEmail(nombre, email);
+        super(dni, nombre);
+        validarEmail(email);
         exigirTexto(clave, "clave");
-        this.dni = dni;
-        this.nombre = nombre.trim();
         this.email = email.trim();
         this.clave = clave;
         this.activo = true;
@@ -40,22 +36,14 @@ public abstract class Usuario implements Autorizacion {
     /** Valida primero y recién después modifica el estado. */
     public Usuario cambiarDatos(String nombre, String email)
             throws DatosInvalidosException {
-        validarNombreYEmail(nombre, email);
-        this.nombre = nombre.trim();
+        validarEmail(email);
+        cambiarNombre(nombre);
         this.email = email.trim();
         return this;
     }
 
     public boolean estaActivo() {
         return activo;
-    }
-
-    public String getDni() {
-        return dni;
-    }
-
-    public String getNombre() {
-        return nombre;
     }
 
     public String getEmail() {
@@ -72,40 +60,24 @@ public abstract class Usuario implements Autorizacion {
             return false;
         }
         Usuario otro = (Usuario) o;
-        return dni.equals(otro.dni);
+        return getDni().equals(otro.getDni());
     }
 
     @Override
     public int hashCode() {
-        return dni.hashCode();
+        return getDni().hashCode();
     }
 
     /** Resumen del usuario; no incluye la clave. */
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [dni=" + dni
-                + ", nombre=" + nombre + ", email=" + email
+        return getClass().getSimpleName() + " [dni=" + getDni()
+                + ", nombre=" + getNombre() + ", email=" + email
                 + ", activo=" + activo + "]";
     }
 
-    /** El DNI debe tener 7 u 8 caracteres y todos deben ser números. */
-    private static void validarDni(String dni) throws DatosInvalidosException {
-        if (dni == null || dni.length() < 7 || dni.length() > 8) {
-            throw new DatosInvalidosException(
-                    "El DNI debe tener 7 u 8 números, sin puntos ni espacios.");
-        }
-        for (int i = 0; i < dni.length(); i++) {
-            char c = dni.charAt(i);
-            if (c < '0' || c > '9') {
-                throw new DatosInvalidosException(
-                        "El DNI debe tener 7 u 8 números, sin puntos ni espacios.");
-            }
-        }
-    }
-
-    private static void validarNombreYEmail(String nombre, String email)
+    private static void validarEmail(String email)
             throws DatosInvalidosException {
-        exigirTexto(nombre, "nombre");
         exigirTexto(email, "email");
         if (!email.contains("@")) {
             throw new DatosInvalidosException("El email debe contener '@'.");
