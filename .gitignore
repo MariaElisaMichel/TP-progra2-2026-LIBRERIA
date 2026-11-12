@@ -33,3 +33,6 @@ bin/
 .idea/
 *.iml
 target/
+
+### Datos Base de Datos ###
+db.properties

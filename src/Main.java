@@ -15,9 +15,12 @@ import Enums.ModalidadEntrega;
 import Models.DetalleVenta;
 import Models.Venta;
 import java.time.LocalDateTime;
+import Database.Conexion;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 void main() {
-    try {
+   /* try {
         Usuario cliente = new Cliente("12345678", "Ana", "ana@mail.com", "1234", "Calle 1");
         Usuario vendedor = new Vendedor("23456789", "Sofía", "sofia@mail.com", "5678");
         Usuario admin = new Administrador("1234567", "Luis", "luis@mail.com", "abcd");
@@ -78,6 +81,12 @@ void main() {
                 EstadoVenta.CONFIRMADA, null, null);
     } catch (DatosInvalidosException e) {
         System.out.println("Error: " + e.getMessage());
+    }*/
+
+    try (Connection con = Conexion.obtener()) {
+        System.out.println("Conexión exitosa a la base: " + con.getCatalog());
+    } catch (SQLException e) {
+        System.out.println("Error de conexión: " + e.getMessage());
     }
 
 }
