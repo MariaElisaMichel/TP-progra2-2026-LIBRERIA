@@ -81,12 +81,21 @@ void main() {
                 EstadoVenta.CONFIRMADA, null, null);
     } catch (DatosInvalidosException e) {
         System.out.println("Error: " + e.getMessage());
-    }*/
+    }
 
     try (Connection con = Conexion.obtener()) {
         System.out.println("Conexión exitosa a la base: " + con.getCatalog());
     } catch (SQLException e) {
         System.out.println("Error de conexión: " + e.getMessage());
+    }*/
+
+    try {
+        new UsuarioDAO().crearTablas();
+        System.out.println("Tablas de usuarios listas.");
+    } catch (SQLException e) {
+        System.out.println("Error al crear las tablas: " + e.getMessage());
     }
+
+
 
 }
