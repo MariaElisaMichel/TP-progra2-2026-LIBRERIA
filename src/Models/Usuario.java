@@ -48,6 +48,11 @@ public abstract class Usuario extends Persona {
     public String getEmail() {
         return email;
     }
+    
+    /*UsuarioDAO necesita obtener la clave para la base de datos*/
+    public String getClave() {
+        return clave;
+    }
 
     /** Dos usuarios son iguales si tienen el mismo DNI. */
     @Override
