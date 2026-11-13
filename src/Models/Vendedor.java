@@ -7,12 +7,12 @@ import Exceptions.DatosInvalidosException;
  * Vendedor: gestiona libros y ventas.
  */
 public class Vendedor extends Usuario {
-
-    public Vendedor(String dni, String nombre, String email, String clave)
-            throws DatosInvalidosException {
-        super(dni, nombre, email, clave);
+    
+    public Vendedor(String dni, String nombre, String email, String clave,
+                    boolean activo) throws DatosInvalidosException {
+        super(dni, nombre, email, clave, activo);
     }
-
+    
     @Override
     public boolean permite(Permiso p) {
         return p == Permiso.VER_CATALOGO
