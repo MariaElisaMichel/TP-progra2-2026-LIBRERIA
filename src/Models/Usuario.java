@@ -2,12 +2,12 @@ package Models;
 
 import Enums.Permiso;
 import Exceptions.DatosInvalidosException;
-import Interfaces.Autorizacion;
+
 
 /**
  * Usuario del sistema. Es abstracta: cada rol decide sus permisos.
  */
-public abstract class Usuario extends Persona implements Autorizacion {
+public abstract class Usuario extends Persona {
 
     private String email;
     private final String clave;
@@ -24,7 +24,6 @@ public abstract class Usuario extends Persona implements Autorizacion {
     }
 
     /** Cada rol define qué permisos tiene. */
-    @Override
     public abstract boolean permite(Permiso p);
 
     /** Baja lógica. Devuelve el estado activo resultante (false). */
