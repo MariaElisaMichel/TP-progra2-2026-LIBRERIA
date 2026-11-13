@@ -77,6 +77,18 @@ public class UsuarioDAO {
     private static final String LISTAR_ADMINISTRADORES =
             "SELECT dni, nombre, email, clave, activo FROM administradores";
     
+    private static final String ACTUALIZAR_CLIENTE =
+            "UPDATE clientes SET nombre = ?, email = ?, activo = ?, domicilio = ? "
+                    + "WHERE dni = ?";
+    
+    private static final String ACTUALIZAR_VENDEDOR =
+            "UPDATE vendedores SET nombre = ?, email = ?, activo = ? "
+                    + "WHERE dni = ?";
+    
+    private static final String ACTUALIZAR_ADMINISTRADOR =
+            "UPDATE administradores SET nombre = ?, email = ?, activo = ? "
+                    + "WHERE dni = ?";
+    
     /** Crea las tablas de usuarios si todavía no existen. */
     public void crearTablas() throws SQLException {
         try (Connection con = Conexion.obtener();
@@ -146,5 +158,36 @@ public class UsuarioDAO {
                     "Hay datos inválidos guardados en la base: " + e.getMessage(), e);
         }
         return usuarios;
+    }
+    
+    /** Guarda los cambios de un usuario que ya existe (se busca por DNI). */
+    public Usuario actualizar(Usuario usuario) throws SQLException {
+        String sql;
+        if (usuario instanceof Cliente) {
+            sql = ACTUALIZAR_CLIENTE;
+        } else if (usuario instanceof Vendedor) {
+            sql = ACTUALIZAR_VENDEDOR;
+        } else {
+            sql = ACTUALIZAR_ADMINISTRADOR; // el único rol que queda
+        }
+        
+        try (Connection con = Conexion.obtener();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, usuario.getNombre());
+            ps.setString(2, usuario.getEmail());
+            ps.setBoolean(3, usuario.estaActivo());
+            if (usuario instanceof Cliente) {
+                ps.setString(4, ((Cliente) usuario).getDomicilio());
+                ps.setString(5, usuario.getDni());
+            } else {
+                ps.setString(4, usuario.getDni());
+            }
+            int filas = ps.executeUpdate();
+            if (filas == 0) {
+                throw new SQLException("No existe en la base un usuario con DNI "
+                                               + usuario.getDni() + ".");
+            }
+        }
+        return usuario;
     }
 }
