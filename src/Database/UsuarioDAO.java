@@ -10,8 +10,8 @@ import java.sql.Statement;
 
 /**
  * Acceso a la base de datos para los usuarios (clientes, vendedores
- * y administradores, cada uno en su propia tabla).
- */
+ * y administradores, cada uno en su propia tabla). */
+
 public class UsuarioDAO {
     
     private static final String CLIENTES =
