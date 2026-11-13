@@ -95,7 +95,18 @@ void main() {
     } catch (SQLException e) {
         System.out.println("Error al crear las tablas: " + e.getMessage());
     }
-
+    
+    try {
+        UsuarioDAO dao = new UsuarioDAO();
+        dao.crearTablas();
+        Cliente ana = new Cliente("12345678", "Ana", "ana@mail.com", "1234", "Calle 1");
+        dao.guardar(ana);
+        System.out.println("Cliente guardado: " + ana);
+    } catch (DatosInvalidosException e) {
+        System.out.println("Datos inválidos: " + e.getMessage());
+    } catch (SQLException e) {
+        System.out.println("Error de base de datos: " + e.getMessage());
+    }
 
 
 }
