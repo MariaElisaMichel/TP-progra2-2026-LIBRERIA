@@ -18,8 +18,10 @@ import java.time.LocalDateTime;
 import Database.Conexion;
 import java.sql.Connection;
 import java.sql.SQLException;
+import Database.UsuarioDAO;
 
-void main() {
+
+void main(){
    /* try {
         Usuario cliente = new Cliente("12345678", "Ana", "ana@mail.com", "1234", "Calle 1");
         Usuario vendedor = new Vendedor("23456789", "Sofía", "sofia@mail.com", "5678");
@@ -88,25 +90,46 @@ void main() {
     } catch (SQLException e) {
         System.out.println("Error de conexión: " + e.getMessage());
     }*/
-
-    try {
+        
+    /*    try{
         new UsuarioDAO().crearTablas();
         System.out.println("Tablas de usuarios listas.");
-    } catch (SQLException e) {
-        System.out.println("Error al crear las tablas: " + e.getMessage());
-    }
-    
-    try {
-        UsuarioDAO dao = new UsuarioDAO();
+        }catch(SQLException e){
+        System.out.println("Error al crear las tablas: "+e.getMessage());
+        }
+        
+        try{
+        UsuarioDAO dao=new UsuarioDAO();
         dao.crearTablas();
-        Cliente ana = new Cliente("12345678", "Ana", "ana@mail.com", "1234", "Calle 1");
+        Cliente ana=new Cliente("12345678","Ana","ana@mail.com","1234","Calle 1");
         dao.guardar(ana);
-        System.out.println("Cliente guardado: " + ana);
-    } catch (DatosInvalidosException e) {
-        System.out.println("Datos inválidos: " + e.getMessage());
-    } catch (SQLException e) {
-        System.out.println("Error de base de datos: " + e.getMessage());
-    }
+        System.out.println("Cliente guardado: "+ana);
+        }catch(DatosInvalidosException e){
+        System.out.println("Datos inválidos: "+e.getMessage());
+        }catch(SQLException e){
+        System.out.println("Error de base de datos: "+e.getMessage());
+        }
+*/
+    
+    
+    try{
+UsuarioDAO dao = new UsuarioDAO();
+        dao.guardar(new Vendedor("23456789", "Sofía", "sofia@mail.com", "5678", true));
+        dao.guardar(new Administrador("1234567", "Luis", "luis@mail.com", "abcd", true));
+List<Usuario> usuarios = dao.listar();
+            System.out.
 
+println("Usuarios guardados: "+usuarios.size());
+        for(
+Usuario u :usuarios){
+        System.out.
 
-}
+println(u);
+            }
+                    }catch(
+SQLException e){
+        System.out.
+
+println("Error de base de datos: "+e.getMessage());
+        }
+        }
