@@ -14,12 +14,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GestorUsuarios implements IRepositorio<Usuario> {
+public class GestorUsuario implements IRepositorio<Usuario> {
 
     private final UsuarioDAO usuarioDAO;
     private List<Usuario> usuarios;
 
-    public GestorUsuarios(UsuarioDAO usuarioDAO) throws SQLException {
+    public GestorUsuario(UsuarioDAO usuarioDAO) throws SQLException {
         this.usuarioDAO = usuarioDAO;
         this.usuarios = usuarioDAO.listar();
     }

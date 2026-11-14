@@ -1,23 +1,9 @@
 
 import Database.*;
-import Enums.Permiso;
-import Exceptions.DatosInvalidosException;
-import Models.Administrador;
-import Models.Cliente;
+import Exceptions.*;
+import Gestores.GestorUsuario;
 import Models.Usuario;
-import Models.Vendedor;
-import Enums.Genero;
-import Exceptions.StockInsuficienteException;
-import Models.Autor;
-import Models.Libro;
-import java.util.List;
-import Enums.EstadoVenta;
-import Enums.MedioPago;
-import Enums.ModalidadEntrega;
-import Models.DetalleVenta;
-import Models.Venta;
-import java.time.LocalDateTime;
-import java.sql.Connection;
+
 import java.sql.SQLException;
 
 
@@ -172,7 +158,7 @@ void main(){
             System.out.println("Error de base de datos: " + e.getMessage());
         } catch (DatosInvalidosException e) {
             System.out.println("Datos inválidos: " + e.getMessage());
-        }*/
+        }
 
     try {
         UsuarioDAO usuarioDAO = new UsuarioDAO();
@@ -226,8 +212,59 @@ void main(){
         System.out.println("Error de base de datos: " + e.getMessage());
     } catch (DatosInvalidosException e) {
         System.out.println("Datos inválidos: " + e.getMessage());
-    }
+    }*/
+    try {
+        GestorUsuario gestor = new GestorUsuario(new UsuarioDAO());
 
+        Usuario admin = gestor.autenticar("luis@mail.com", "abcd");
+        System.out.println("Sesión iniciada: " + admin);
+
+        try {
+            gestor.autenticar("luis@mail.com", "mala");
+        } catch (AccesoDenegadoException e) {
+            System.out.println("Esperado - login mal: " + e.getMessage());
+        }
+
+        gestor.registrarCliente("30123456", "Marta", "marta@mail.com", "1111", "Calle 9");
+        System.out.println("Cliente registrado.");
+
+        System.out.println("--- Todos los usuarios ---");
+        for (Usuario u : gestor.mostrar(admin)) {
+            System.out.println(u);
+        }
+
+        System.out.println("--- Búsqueda 'mar' ---");
+        for (Usuario u : gestor.buscar(admin, "mar")) {
+            System.out.println(u);
+        }
+
+        System.out.println("Modificado: "
+                + gestor.modificarDatos(admin, "30123456", "Marta Gómez", "marta@mail.com"));
+
+        Usuario marta = gestor.autenticar("marta@mail.com", "1111");
+        try {
+            gestor.mostrar(marta);
+        } catch (AccesoDenegadoException e) {
+            System.out.println("Esperado - cliente sin permiso: " + e.getMessage());
+        }
+
+        System.out.println("Baja: " + gestor.eliminar(admin, "30123456"));
+        try {
+            gestor.eliminar(admin, "30123456");
+        } catch (DatosInvalidosException e) {
+            System.out.println("Esperado - ya estaba de baja: " + e.getMessage());
+        }
+        try {
+            gestor.autenticar("marta@mail.com", "1111");
+        } catch (AccesoDenegadoException e) {
+            System.out.println("Esperado - login de baja: " + e.getMessage());
+        }
+    } catch (AccesoDenegadoException | DatosInvalidosException
+             | UsuarioDuplicadoException | EntidadNoEncontradaException e) {
+        System.out.println("Error de negocio: " + e.getMessage());
+    } catch (SQLException e) {
+        System.out.println("Error de base de datos: " + e.getMessage());
+    }
 
 
     }
