@@ -121,33 +121,22 @@ void main(){
         System.out.println("Error de base de datos: "+e.getMessage());
         }
 */
-    
-    
-    try{
-UsuarioDAO dao = new UsuarioDAO();
+
+
+    try {
+        UsuarioDAO dao = new UsuarioDAO();
         dao.guardar(new Vendedor("23456789", "Sofía", "sofia@mail.com", "5678", true));
         dao.guardar(new Administrador("1234567", "Luis", "luis@mail.com", "abcd", true));
-List<Usuario> usuarios = dao.listar();
-            System.out.
-
-println("Usuarios guardados: "+usuarios.size());
-        for(
-Usuario u :usuarios){
-        System.out.
-
-println(u);
-            }
-                    }catch(
-SQLException e){
-        System.out.
-
-println("Error de base de datos: "+e.getMessage());
-        }catch (DatosInvalidosException e) {
-        System.out.println("Datos inválidos: " + e.getMessage());
+        List<Usuario> usuarios = dao.listar();
+        System.out.println("Usuarios guardados: " + usuarios.size());
+        for (Usuario u : usuarios) {
+            System.out.println(u);
         }
-
-
-
+    } catch (SQLException e) {
+        System.out.println("Error de base de datos: " + e.getMessage());
+    } catch (DatosInvalidosException e) {
+        throw new RuntimeException(e);
+    }
 
 
         LibroDAO dao = new LibroDAO();
@@ -190,23 +179,8 @@ println("Error de base de datos: "+e.getMessage());
             System.out.println("Datos inválidos: " + e.getMessage());
         }
     }
-<<<<<<< Updated upstream
-=======
-}*/
-    try {
-        UsuarioDAO dao = new UsuarioDAO();
-        dao.guardar(new Vendedor("23456789", "Sofía", "sofia@mail.com", "5678", true));
-        dao.guardar(new Administrador("1234567", "Luis", "luis@mail.com", "abcd", true));
-        List<Usuario> usuarios = dao.listar();
-        System.out.println("Usuarios guardados: " + usuarios.size());
-        for (Usuario u : usuarios) {
-            System.out.println(u);
-        }
-    } catch (SQLException e) {
-        System.out.println("Error de base de datos: " + e.getMessage());
-    } catch (DatosInvalidosException e) {
-        throw new RuntimeException(e);
-    }
 
-}
->>>>>>> Stashed changes
+
+
+
+
