@@ -43,7 +43,7 @@ public class MenuConsola {
     }
 
     public void ejecutar() {
-        System.out.println("=== LIBRERÍA ===");
+        System.out.println("Bienvenidos - Libreria 'Las Superpoderosas' ");
         boolean salir = false;
         while (!salir) {
             try {
@@ -221,7 +221,7 @@ public class MenuConsola {
         String titulo = leerTexto("Título (Enter para omitir)");
         String autor = leerTexto("Autor (Enter para omitir)");
         Genero genero = null;
-        String filtrar = leerTexto("¿Filtrar por género? (s/n)");
+        String filtrar = leerTexto("¿Filtrar por género? Presione S para confirmar, N para denegar");
         if (filtrar.equalsIgnoreCase("s")) {
             Genero[] generos = Genero.values();
             genero = generos[elegirNumero("Género", generos)];
@@ -277,7 +277,7 @@ public class MenuConsola {
         ModalidadEntrega entrega = entregas[elegirNumero("Modalidad de entrega", entregas)];
         String domicilio = null;
         if (entrega == ModalidadEntrega.ENVIO) {
-            domicilio = leerTexto("Domicilio de entrega (Enter para usar el tuyo)");
+            domicilio = leerTexto("Domicilio de entrega (Enter para usar el registrado)");
             if (domicilio.isEmpty() && usuarioActual instanceof Cliente) {
                 domicilio = ((Cliente) usuarioActual).getDomicilio();
             }
@@ -393,7 +393,7 @@ public class MenuConsola {
             nuevo = new Administrador(dni, nombre, email, clave, true);
         }
         usuarios.agregar(usuarioActual, nuevo);
-        System.out.println("Usuario creado.");
+        System.out.println("Usuario creado con exito.");
     }
 
     private void bajaUsuario() throws Exception {
@@ -412,7 +412,7 @@ public class MenuConsola {
             if (!autores.contains(autor)) {
                 autores.add(autor);
             }
-            otro = leerTexto("¿Agregar otro autor? (s/n)").equalsIgnoreCase("s");
+            otro = leerTexto("¿Agregar otro autor? Presione S en caso afirmativo, N en caso contrario").equalsIgnoreCase("s");
         }
         return autores;
     }
