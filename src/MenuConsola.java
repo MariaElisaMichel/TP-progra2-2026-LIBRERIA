@@ -285,7 +285,7 @@ public class MenuConsola {
         Venta venta = ventas.comprar(usuarioActual, new HashMap<>(cantidades),
                 medio, entrega, domicilio);
         cantidades.clear();
-        System.out.println("¡Compra realizada!");
+        System.out.println("¡Operación realizada con exito, gracias por su compra!");
         System.out.println(formatearVenta(venta));
     }
 
