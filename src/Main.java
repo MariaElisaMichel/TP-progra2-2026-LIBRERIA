@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 import Database.LibroDAO;
+=======
+import Database.UsuarioDAO;
+>>>>>>> Stashed changes
 import Enums.Permiso;
 import Exceptions.DatosInvalidosException;
 import Models.Administrador;
@@ -90,9 +94,15 @@ void main(){
         System.out.println("Conexión exitosa a la base: " + con.getCatalog());
     } catch (SQLException e) {
         System.out.println("Error de conexión: " + e.getMessage());
+<<<<<<< Updated upstream
     }*/
         
     /*    try{
+=======
+
+
+    try {
+>>>>>>> Stashed changes
         new UsuarioDAO().crearTablas();
         System.out.println("Tablas de usuarios listas.");
         }catch(SQLException e){
@@ -180,3 +190,23 @@ println("Error de base de datos: "+e.getMessage());
             System.out.println("Datos inválidos: " + e.getMessage());
         }
     }
+<<<<<<< Updated upstream
+=======
+}*/
+    try {
+        UsuarioDAO dao = new UsuarioDAO();
+        dao.guardar(new Vendedor("23456789", "Sofía", "sofia@mail.com", "5678", true));
+        dao.guardar(new Administrador("1234567", "Luis", "luis@mail.com", "abcd", true));
+        List<Usuario> usuarios = dao.listar();
+        System.out.println("Usuarios guardados: " + usuarios.size());
+        for (Usuario u : usuarios) {
+            System.out.println(u);
+        }
+    } catch (SQLException e) {
+        System.out.println("Error de base de datos: " + e.getMessage());
+    } catch (DatosInvalidosException e) {
+        throw new RuntimeException(e);
+    }
+
+}
+>>>>>>> Stashed changes
