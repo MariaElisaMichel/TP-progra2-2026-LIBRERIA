@@ -6,7 +6,7 @@ public interface IValidarNombre {
     
     void validarNombre(String nombre) throws DatosInvalidosException;
     
-    Nombrable cambiarNombre(String nuevoNombre) throws DatosInvalidosException;
+    IValidarNombre cambiarNombre(String nuevoNombre) throws DatosInvalidosException;
     
     String getNombre();
 }

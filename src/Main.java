@@ -1,3 +1,4 @@
+import Database.LibroDAO;
 import Enums.Permiso;
 import Exceptions.DatosInvalidosException;
 import Models.Administrador;
@@ -131,5 +132,51 @@ SQLException e){
         System.out.
 
 println("Error de base de datos: "+e.getMessage());
+        }catch (DatosInvalidosException e) {
+        System.out.println("Datos inválidos: " + e.getMessage());
         }
+
+
+
+
+
+        LibroDAO dao = new LibroDAO();
+        try {
+            dao.crearTablas();
+            System.out.println("Tablas de libros listas.");
+
+            Autor cortazar = new Autor("Julio", "Cortázar");
+            Libro rayuela = new Libro("9789500429634", "Rayuela", Genero.NOVELA,
+                    15000, 5, List.of(cortazar), true);
+
+            try {
+                dao.guardar(rayuela);
+                System.out.println("Libro guardado.");
+            } catch (SQLException e) {
+                System.out.println("No se guardó (¿ya existía?): " + e.getMessage());
+            }
+
+            System.out.println("--- Libros en la base ---");
+            for (Libro l : dao.listar()) {
+                System.out.println(l);
+            }
+
+            System.out.println("--- Autores en la base ---");
+            for (Autor a : dao.listarAutores()) {
+                System.out.println(a);
+            }
+
+            rayuela.reponer(3);
+            dao.actualizar(rayuela);
+            System.out.println("Stock actualizado a: " + rayuela.getStock());
+
+            System.out.println("--- Libros después de actualizar ---");
+            for (Libro l : dao.listar()) {
+                System.out.println(l);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error de base de datos: " + e.getMessage());
+        } catch (DatosInvalidosException e) {
+            System.out.println("Datos inválidos: " + e.getMessage());
         }
+    }
