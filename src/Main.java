@@ -1,12 +1,16 @@
 
 import Database.*;
 import Enums.Genero;
+import Enums.MedioPago;
+import Enums.ModalidadEntrega;
 import Exceptions.*;
 import Gestores.GestorCatalogo;
 import Gestores.GestorUsuario;
+import Gestores.GestorVentas;
 import Models.Autor;
 import Models.Usuario;
 import Models.Libro;
+import Models.Venta;
 
 import java.sql.SQLException;
 
@@ -328,7 +332,88 @@ void main(){
     } catch (SQLException e) {
         System.out.println("Error de base de datos: " + e.getMessage());
     }
+    
+    try {
+        GestorUsuario usuarios = new GestorUsuario(new UsuarioDAO());
+        GestorCatalogo catalogo = new GestorCatalogo(new LibroDAO());
+        GestorVentas ventas = new GestorVentas(new VentaDAO(), catalogo, usuarios);
 
+        Usuario admin = usuarios.autenticar("luis@mail.com", "abcd");
+        try {
+            usuarios.registrarCliente("30123458", "Carla", "carla@mail.com", "2222", "Calle 5");
+        } catch (UsuarioDuplicadoException e) {
+            System.out.println("Carla ya existía, sigo.");
+        }
+        Usuario carla = usuarios.autenticar("carla@mail.com", "2222");
+        System.out.println("Stock inicial: " + catalogo.consultar(isbn).getStock());
+
+        Map<String, Integer> items = new HashMap<>();
+        items.put(isbn, 2);
+        Venta venta = ventas.comprar(carla, items, MedioPago.EFECTIVO,
+                ModalidadEntrega.RETIRO, null);
+        System.out.println("Compra: " + venta);
+        System.out.println("Stock tras comprar: " + catalogo.consultar(isbn).getStock());
+
+        try {
+            ventas.comprar(carla, new HashMap<>(), MedioPago.EFECTIVO,
+                    ModalidadEntrega.RETIRO, null);
+        } catch (CarritoVacioException e) {
+            System.out.println("Esperado - carrito vacío: " + e.getMessage());
+        }
+
+        Map<String, Integer> demasiados = new HashMap<>();
+        demasiados.put(isbn, 1000);
+        try {
+            ventas.comprar(carla, demasiados, MedioPago.EFECTIVO, ModalidadEntrega.RETIRO, null);
+        } catch (StockInsuficienteException e) {
+            System.out.println("Esperado - sin stock: " + e.getMessage());
+        }
+
+        try {
+            ventas.comprar(admin, items, MedioPago.EFECTIVO, ModalidadEntrega.RETIRO, null);
+        } catch (AccesoDenegadoException e) {
+            System.out.println("Esperado - admin no compra: " + e.getMessage());
+        }
+
+        try {
+            ventas.mostrar(carla);
+        } catch (AccesoDenegadoException e) {
+            System.out.println("Esperado - cliente no ve todas: " + e.getMessage());
+        }
+
+        System.out.println("--- Compras de Carla ---");
+        for (Venta v : ventas.listarPropias(carla)) {
+            System.out.println(v);
+        }
+
+        System.out.println("--- Todas las ventas (admin) ---");
+        for (Venta v : ventas.mostrar(admin)) {
+            System.out.println(v);
+        }
+
+        Venta anulada = ventas.eliminar(admin, venta.getId());
+        System.out.println("Anulada: " + anulada + " por " + anulada.getAnuladoPorDni());
+        System.out.println("Stock tras anular: " + catalogo.consultar(isbn).getStock());
+
+        try {
+            ventas.eliminar(admin, venta.getId());
+        } catch (DatosInvalidosException e) {
+            System.out.println("Esperado - ya anulada: " + e.getMessage());
+        }
+
+        GestorUsuario usuarios2 = new GestorUsuario(new UsuarioDAO());
+        GestorCatalogo catalogo2 = new GestorCatalogo(new LibroDAO());
+        GestorVentas ventas2 = new GestorVentas(new VentaDAO(), catalogo2, usuarios2);
+        System.out.println("--- Tras reiniciar ---");
+        for (Venta v : ventas2.mostrar(admin)) {
+            System.out.println(v);
+        }
+    } catch (AccesoDenegadoException | CarritoVacioException | DatosInvalidosException
+             | EntidadNoEncontradaException | StockInsuficienteException e) {
+        System.out.println("Error de negocio: " + e.getMessage());
+    } catch (SQLException e) {
+        System.out.println("Error de base de datos: " + e.getMessage());
+    }
 
     }
 
