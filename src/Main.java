@@ -1,8 +1,5 @@
 
-import Database.LibroDAO;
-
-import Database.UsuarioDAO;
-
+import Database.*;
 import Enums.Permiso;
 import Exceptions.DatosInvalidosException;
 import Models.Administrador;
@@ -20,10 +17,8 @@ import Enums.ModalidadEntrega;
 import Models.DetalleVenta;
 import Models.Venta;
 import java.time.LocalDateTime;
-import Database.Conexion;
 import java.sql.Connection;
 import java.sql.SQLException;
-import Database.UsuarioDAO;
 
 
 void main(){
@@ -120,7 +115,7 @@ void main(){
         }catch(SQLException e){
         System.out.println("Error de base de datos: "+e.getMessage());
         }
-*/
+
 
 
     try {
@@ -177,7 +172,64 @@ void main(){
             System.out.println("Error de base de datos: " + e.getMessage());
         } catch (DatosInvalidosException e) {
             System.out.println("Datos inválidos: " + e.getMessage());
+        }*/
+
+    try {
+        UsuarioDAO usuarioDAO = new UsuarioDAO();
+        LibroDAO libroDAO = new LibroDAO();
+        VentaDAO ventaDAO = new VentaDAO();
+        usuarioDAO.crearTablas();
+        libroDAO.crearTablas();
+        ventaDAO.crearTablas();
+        System.out.println("Tablas listas.");
+
+        List<Usuario> usuarios = usuarioDAO.listar();
+        Cliente cliente = null;
+        for (Usuario u : usuarios) {
+            if (u instanceof Cliente) {
+                cliente = (Cliente) u;
+                break;
+            }
         }
+        List<Libro> libros = libroDAO.listar();
+        if (cliente == null || libros.isEmpty()) {
+            System.out.println("Hace falta al menos un cliente y un libro guardados.");
+            return;
+        }
+        Libro libro = libros.get(0);
+        System.out.println("Stock inicial de " + libro.getTitulo() + ": " + libro.getStock());
+
+        String id = ventaDAO.siguienteId();
+        DetalleVenta detalle = new DetalleVenta(libro, 2, libro.getPrecio());
+        Venta venta = new Venta(id, LocalDateTime.now(), cliente, List.of(detalle),
+                MedioPago.EFECTIVO, ModalidadEntrega.RETIRO, null,
+                EstadoVenta.CONFIRMADA, null, null);
+        ventaDAO.registrarVenta(venta);
+        System.out.println("Venta registrada: " + venta);
+
+        libros = libroDAO.listar();
+        System.out.println("Stock tras la venta: " + libros.get(0).getStock());
+
+        System.out.println("--- Ventas en la base ---");
+        for (Venta v : ventaDAO.listar(usuarios, libros)) {
+            System.out.println(v + " anulada=" + v.estaAnulada());
+        }
+
+        System.out.println("Primera anulación: "
+                + ventaDAO.anularVenta(id, "23456789", LocalDateTime.now()));
+        System.out.println("Segunda anulación: "
+                + ventaDAO.anularVenta(id, "23456789", LocalDateTime.now()));
+
+        libros = libroDAO.listar();
+        System.out.println("Stock tras anular: " + libros.get(0).getStock());
+    } catch (SQLException e) {
+        System.out.println("Error de base de datos: " + e.getMessage());
+    } catch (DatosInvalidosException e) {
+        System.out.println("Datos inválidos: " + e.getMessage());
+    }
+
+
+
     }
 
 
