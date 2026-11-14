@@ -2,46 +2,70 @@ package Models;
 
 import Enums.Permiso;
 import Exceptions.DatosInvalidosException;
+import Interfaces.IValidarNombre;
 
-/**
- * Usuario del sistema. Es abstracta: cada rol decide sus permisos.
- */
-public abstract class Usuario extends Persona {
+import java.util.Objects;
+
+public abstract class Usuario implements IValidarNombre {
     
+    private final String dni;
+    private String nombre;
     private String email;
     private final String clave;
     private boolean activo;
     
-    public Usuario(String dni, String nombre, String email, String clave,
-                   boolean activo) throws DatosInvalidosException {
-        super(dni, nombre);
+    public Usuario(String dni, String nombre, String email, String clave, boolean activo)
+            throws DatosInvalidosException {
+        validarDni(dni);
+        validarNombre(nombre);
         validarEmail(email);
-        exigirTexto(clave, "clave");
+        exigirTexto(clave, "La clave");
+        this.dni = dni;
+        this.nombre = nombre.trim();
         this.email = email.trim();
         this.clave = clave;
         this.activo = activo;
     }
     
-    /** Cada rol define qué permisos tiene. */
     public abstract boolean permite(Permiso p);
     
-    /** Baja lógica. Devuelve el estado activo resultante (false). */
-    public boolean desactivar() {
-        activo = false;
-        return activo;
+    @Override
+    public void validarNombre(String nombre) throws DatosInvalidosException {
+        exigirTexto(nombre, "El nombre");
     }
     
-    /** Valida primero y recién después modifica el estado. */
-    public Usuario cambiarDatos(String nombre, String email)
-            throws DatosInvalidosException {
+    @Override
+    public Usuario cambiarNombre(String nuevoNombre) throws DatosInvalidosException {
+        validarNombre(nuevoNombre);
+        this.nombre = nuevoNombre.trim();
+        return this;
+    }
+    
+    public Usuario cambiarDatos(String nombre, String email) throws DatosInvalidosException {
+        validarNombre(nombre);
         validarEmail(email);
-        cambiarNombre(nombre);
+        this.nombre = nombre.trim();
         this.email = email.trim();
         return this;
     }
     
+    public boolean desactivar() {
+        boolean estabaActivo = activo;
+        activo = false;
+        return estabaActivo;
+    }
+    
     public boolean estaActivo() {
         return activo;
+    }
+    
+    @Override
+    public String getNombre() {
+        return nombre;
+    }
+    
+    public String getDni() {
+        return dni;
     }
     
     public String getEmail() {
@@ -52,46 +76,42 @@ public abstract class Usuario extends Persona {
         return clave;
     }
     
-    /** Dos usuarios son iguales si tienen el mismo DNI. */
+    private static void validarDni(String dni) throws DatosInvalidosException {
+        if (dni == null || !dni.matches("\\d{7,8}")) {
+            throw new DatosInvalidosException(
+                    "El DNI debe tener 7 u 8 dígitos, sin puntos ni espacios.");
+        }
+    }
+    
+    private static void validarEmail(String email) throws DatosInvalidosException {
+        if (email == null || !email.trim().matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+")) {
+            throw new DatosInvalidosException("El email no tiene un formato válido.");
+        }
+    }
+    
+    protected static String exigirTexto(String valor, String campo) throws DatosInvalidosException {
+        if (valor == null || valor.trim().isEmpty()) {
+            throw new DatosInvalidosException(campo + " no puede estar vacío.");
+        }
+        return valor.trim();
+    }
+    
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Usuario)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (!(o instanceof Usuario)) return false;
         Usuario otro = (Usuario) o;
-        return getDni().equals(otro.getDni());
+        return dni.equals(otro.dni);
     }
     
     @Override
     public int hashCode() {
-        return getDni().hashCode();
+        return Objects.hash(dni);
     }
     
-    /** Resumen del usuario; no incluye la clave. */
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " [dni=" + getDni()
-                + ", nombre=" + getNombre() + ", email=" + email
-                + ", activo=" + activo + "]";
-    }
-    
-    private static void validarEmail(String email)
-            throws DatosInvalidosException {
-        exigirTexto(email, "email");
-        if (!email.contains("@")) {
-            throw new DatosInvalidosException("El email debe contener '@'.");
-        }
-    }
-    
-    /** Valida que un texto no sea nulo ni esté vacío. */
-    protected static void exigirTexto(String valor, String campo)
-            throws DatosInvalidosException {
-        if (valor == null || valor.isBlank()) {
-            throw new DatosInvalidosException(
-                    "El " + campo + " no puede estar vacío.");
-        }
+        return getClass().getSimpleName() + " " + dni + " - " + nombre + " <" + email + ">"
+                + (activo ? "" : " [inactivo]");
     }
 }

@@ -1,36 +1,66 @@
 package Models;
 
 import Exceptions.DatosInvalidosException;
+import Interfaces.IValidarNombre;
 
-/**
- * Autor de uno o más libros. Se identifica por su DNI.
- */
-public class Autor extends Persona {
-
-    public Autor(String dni, String nombre) throws DatosInvalidosException {
-        super(dni, nombre);
+public final class Autor implements IValidarNombre {
+    
+    private static final int LARGO_MAXIMO = 60;
+    
+    private final String nombre;
+    private final String apellido;
+    
+    public Autor(String nombre, String apellido) throws DatosInvalidosException {
+        validarNombre(nombre);
+        validarTexto(apellido, "El apellido");
+        this.nombre = nombre.trim();
+        this.apellido = apellido.trim();
     }
-
-    /** Dos autores son iguales si tienen el mismo DNI. */
+    
+    @Override
+    public void validarNombre(String nombre) throws DatosInvalidosException {
+        validarTexto(nombre, "El nombre");
+    }
+    
+    @Override
+    public Autor cambiarNombre(String nuevoNombre) throws DatosInvalidosException {
+        return new Autor(nuevoNombre, apellido);
+    }
+    
+    @Override
+    public String getNombre() {
+        return nombre;
+    }
+    
+    public String getApellido() {
+        return apellido;
+    }
+    
+    private static void validarTexto(String valor, String campo) throws DatosInvalidosException {
+        if (valor == null || valor.trim().isEmpty()) {
+            throw new DatosInvalidosException(campo + " del autor no puede estar vacío.");
+        }
+        if (valor.trim().length() > LARGO_MAXIMO) {
+            throw new DatosInvalidosException(
+                    campo + " del autor no puede superar los " + LARGO_MAXIMO + " caracteres.");
+        }
+    }
+    
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Autor)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (!(o instanceof Autor)) return false;
         Autor otro = (Autor) o;
-        return getDni().equals(otro.getDni());
+        return nombre.equalsIgnoreCase(otro.nombre) && apellido.equalsIgnoreCase(otro.apellido);
     }
-
+    
     @Override
     public int hashCode() {
-        return getDni().hashCode();
+        return nombre.toLowerCase().hashCode() * 31 + apellido.toLowerCase().hashCode();
     }
-
+    
     @Override
     public String toString() {
-        return "Autor [dni=" + getDni() + ", nombre=" + getNombre() + "]";
+        return nombre + " " + apellido;
     }
 }
