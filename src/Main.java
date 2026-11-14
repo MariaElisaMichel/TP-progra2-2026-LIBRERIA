@@ -1,8 +1,12 @@
 
 import Database.*;
+import Enums.Genero;
 import Exceptions.*;
+import Gestores.GestorCatalogo;
 import Gestores.GestorUsuario;
+import Models.Autor;
 import Models.Usuario;
+import Models.Libro;
 
 import java.sql.SQLException;
 
@@ -212,7 +216,7 @@ void main(){
         System.out.println("Error de base de datos: " + e.getMessage());
     } catch (DatosInvalidosException e) {
         System.out.println("Datos inválidos: " + e.getMessage());
-    }*/
+    }
     try {
         GestorUsuario gestor = new GestorUsuario(new UsuarioDAO());
 
@@ -261,6 +265,65 @@ void main(){
         }
     } catch (AccesoDenegadoException | DatosInvalidosException
              | UsuarioDuplicadoException | EntidadNoEncontradaException e) {
+        System.out.println("Error de negocio: " + e.getMessage());
+    } catch (SQLException e) {
+        System.out.println("Error de base de datos: " + e.getMessage());
+    }*/
+
+    String isbn = "9789871138043";
+    try {
+        GestorUsuario usuarios = new GestorUsuario(new UsuarioDAO());
+        GestorCatalogo catalogo = new GestorCatalogo(new LibroDAO());
+        Usuario admin = usuarios.autenticar("luis@mail.com", "abcd");
+
+        Autor borges = catalogo.guardarAutor(admin, new Autor("Jorge Luis", "Borges"));
+        System.out.println("Autor listo: " + borges);
+
+        Libro ficciones = new Libro(isbn, "Ficciones", Genero.CUENTO, 12000, 4,
+                List.of(borges), true);
+        catalogo.agregar(admin, ficciones);
+        System.out.println("Cargado, stock: " + catalogo.consultar(isbn).getStock());
+
+        catalogo.agregar(admin, new Libro(isbn, "Ficciones", Genero.CUENTO, 12000, 3,
+                List.of(borges), true));
+        System.out.println("Cargado de nuevo (suma), stock: " + catalogo.consultar(isbn).getStock());
+
+        try {
+            catalogo.agregar(admin, new Libro("9780000000002", "Libro con autor fantasma",
+                    Genero.NOVELA, 5000, 1, List.of(new Autor("Nadie", "Conocido")), true));
+        } catch (EntidadNoEncontradaException e) {
+            System.out.println("Esperado - autor inexistente: " + e.getMessage());
+        }
+
+        try {
+            catalogo.agregar(null, ficciones);
+        } catch (AccesoDenegadoException e) {
+            System.out.println("Esperado - sin sesión: " + e.getMessage());
+        }
+
+        System.out.println("--- Catálogo ---");
+        for (Libro l : catalogo.mostrar(admin)) {
+            System.out.println(l + " autores=" + l.getAutores());
+        }
+
+        System.out.println("--- Búsqueda fic / borges ---");
+        System.out.println(catalogo.buscar("fic", null, "borges"));
+
+        System.out.println("Stock tras reponer 5: " + catalogo.reponer(admin, isbn, 5));
+
+        catalogo.modificarDatos(admin, isbn, "Ficciones (edición nueva)",
+                Genero.CUENTO, 13500, List.of(borges));
+        GestorCatalogo recargado = new GestorCatalogo(new LibroDAO());
+        System.out.println("Tras reiniciar: " + recargado.consultar(isbn));
+
+        System.out.println("Baja: " + catalogo.eliminar(admin, isbn));
+        try {
+            catalogo.reponer(admin, isbn, 1);
+        } catch (DatosInvalidosException e) {
+            System.out.println("Esperado - libro de baja: " + e.getMessage());
+        }
+    } catch (AccesoDenegadoException | DatosInvalidosException
+             | EntidadNoEncontradaException e) {
         System.out.println("Error de negocio: " + e.getMessage());
     } catch (SQLException e) {
         System.out.println("Error de base de datos: " + e.getMessage());

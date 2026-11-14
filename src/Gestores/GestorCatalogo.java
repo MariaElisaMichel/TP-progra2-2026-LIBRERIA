@@ -164,7 +164,9 @@ public class GestorCatalogo implements IRepositorio<Libro> {
         libros.set(libros.indexOf(actual), nuevo);
         return nuevo;
     }
-
+    List<Libro> todos() {
+        return libros;
+    }
     private void verificarPermiso(Usuario actor, Permiso permiso)
             throws AccesoDenegadoException {
         if (actor == null) {

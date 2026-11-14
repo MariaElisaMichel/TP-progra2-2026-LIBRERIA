@@ -111,7 +111,9 @@ public class GestorUsuario implements IRepositorio<Usuario> {
         guardarCambio(usuario);
         return usuario;
     }
-
+    List<Usuario> todos() {
+        return usuarios;
+    }
     private void verificarPermiso(Usuario actor, Permiso permiso)
             throws AccesoDenegadoException {
         if (actor == null) {
