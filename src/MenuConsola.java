@@ -18,30 +18,31 @@ import Models.Venta;
 
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 public class MenuConsola {
-
+    
     private static final DateTimeFormatter FORMATO_FECHA =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
+    
     private final Scanner entrada = new Scanner(System.in);
     private final GestorUsuario usuarios;
     private final GestorCatalogo catalogo;
     private final GestorVentas ventas;
     private Usuario usuarioActual;
     private final Map<String, Integer> cantidades = new HashMap<>();
-
+    
     public MenuConsola(GestorUsuario usuarios, GestorCatalogo catalogo, GestorVentas ventas) {
         this.usuarios = usuarios;
         this.catalogo = catalogo;
         this.ventas = ventas;
     }
-
+    
     public void ejecutar() {
         System.out.println("Bienvenidos - Libreria 'Las Superpoderosas' ");
         boolean salir = false;
@@ -65,7 +66,7 @@ public class MenuConsola {
         }
         System.out.println("¡Hasta luego!");
     }
-
+    
     private void mostrarMenuPublico() {
         System.out.println();
         System.out.println("1) Ver catálogo");
@@ -74,11 +75,11 @@ public class MenuConsola {
         System.out.println("4) Iniciar sesión");
         System.out.println("0) Salir");
     }
-
+    
     private void mostrarMenuSesion() {
         System.out.println();
         System.out.println("Sesión: " + usuarioActual.getNombre() + " ("
-                + usuarioActual.getClass().getSimpleName() + ")");
+                                   + usuarioActual.getClass().getSimpleName() + ")");
         if (usuarioActual.permite(Permiso.VER_CATALOGO)) {
             System.out.println("1) Ver catálogo");
             System.out.println("2) Buscar libros");
@@ -108,7 +109,7 @@ public class MenuConsola {
         }
         System.out.println("0) Cerrar sesión");
     }
-
+    
     private void opcionPublica(int opcion) throws Exception {
         switch (opcion) {
             case 1:
@@ -127,7 +128,7 @@ public class MenuConsola {
                 System.out.println("Esa opción no existe.");
         }
     }
-
+    
     private void opcionSesion(int opcion) throws Exception {
         switch (opcion) {
             case 0:
@@ -182,7 +183,7 @@ public class MenuConsola {
                 System.out.println("Esa opción no existe.");
         }
     }
-
+    
     private void iniciarSesion() throws Exception {
         String email = leerTexto("Email");
         String clave = leerTexto("Clave");
@@ -190,13 +191,13 @@ public class MenuConsola {
         cantidades.clear();
         System.out.println("Bienvenido/a, " + usuarioActual.getNombre() + ".");
     }
-
+    
     private void cerrarSesion() {
         usuarioActual = null;
         cantidades.clear();
         System.out.println("Sesión cerrada.");
     }
-
+    
     private void registrarse() throws Exception {
         String dni = leerTexto("DNI (7 u 8 dígitos)");
         String nombre = leerTexto("Nombre");
@@ -206,7 +207,7 @@ public class MenuConsola {
         usuarios.registrarCliente(dni, nombre, email, clave, domicilio);
         System.out.println("Registro exitoso. Ya podés iniciar sesión.");
     }
-
+    
     private void verCatalogo() throws Exception {
         List<Libro> lista;
         if (usuarioActual == null) {
@@ -216,7 +217,7 @@ public class MenuConsola {
         }
         imprimirLibros(lista);
     }
-
+    
     private void buscarLibros() {
         String titulo = leerTexto("Título (Enter para omitir)");
         String autor = leerTexto("Autor (Enter para omitir)");
@@ -228,7 +229,7 @@ public class MenuConsola {
         }
         imprimirLibros(catalogo.buscar(titulo, genero, autor));
     }
-
+    
     private void agregarAlCarrito() throws Exception {
         String isbn = leerTexto("ISBN del libro");
         Libro libro = catalogo.consultar(isbn);
@@ -243,13 +244,13 @@ public class MenuConsola {
         }
         if (!libro.tieneStock(enCarrito + cantidad)) {
             System.out.println("No hay stock suficiente: quedan " + libro.getStock()
-                    + " y ya tenés " + enCarrito + " en el carrito.");
+                                       + " y ya tenés " + enCarrito + " en el carrito.");
             return;
         }
         cantidades.put(isbn, enCarrito + cantidad);
         System.out.println("Agregado al carrito: " + libro.getTitulo() + " x" + (enCarrito + cantidad));
     }
-
+    
     private void verCarrito() throws Exception {
         if (cantidades.isEmpty()) {
             System.out.println("El carrito está vacío.");
@@ -261,11 +262,11 @@ public class MenuConsola {
             double subtotal = libro.getPrecio() * item.getValue();
             total += subtotal;
             System.out.println(libro.getTitulo() + " x" + item.getValue()
-                    + " = $" + String.format("%.2f", subtotal));
+                                       + " = $" + String.format("%.2f", subtotal));
         }
         System.out.println("Total: $" + String.format("%.2f", total));
     }
-
+    
     private void confirmarCompra() throws Exception {
         if (cantidades.isEmpty()) {
             throw new CarritoVacioException(
@@ -283,12 +284,12 @@ public class MenuConsola {
             }
         }
         Venta venta = ventas.comprar(usuarioActual, new HashMap<>(cantidades),
-                medio, entrega, domicilio);
+                                     medio, entrega, domicilio);
         cantidades.clear();
         System.out.println("¡Operación realizada con exito, gracias por su compra!");
         System.out.println(formatearVenta(venta));
     }
-
+    
     private void misCompras() throws Exception {
         List<Venta> propias = ventas.listarPropias(usuarioActual);
         if (propias.isEmpty()) {
@@ -300,7 +301,7 @@ public class MenuConsola {
             System.out.println();
         }
     }
-
+    
     private void cargarLibro() throws Exception {
         String isbn = leerTexto("ISBN");
         Libro existente = null;
@@ -311,7 +312,7 @@ public class MenuConsola {
         }
         if (existente != null) {
             int cantidad = leerEnteroPositivo("Ese libro ya existe (" + existente.getTitulo()
-                    + "). Cantidad a sumar al stock");
+                                                      + "). Cantidad a sumar al stock");
             int stock = catalogo.reponer(usuarioActual, isbn, cantidad);
             System.out.println("Se sumó stock. Stock actual: " + stock);
             return;
@@ -321,17 +322,17 @@ public class MenuConsola {
         Genero genero = generos[elegirNumero("Género", generos)];
         double precio = leerPrecio("Precio");
         int stock = leerEnteroPositivo("Stock inicial");
-        List<Autor> autores = leerAutores();
+        Set<Autor> autores = leerAutores();
         catalogo.agregar(usuarioActual, new Libro(isbn, titulo, genero, precio, stock, autores, true));
         System.out.println("Libro cargado.");
     }
-
+    
     private void reponerStock() throws Exception {
         String isbn = leerTexto("ISBN");
         int cantidad = leerEnteroPositivo("Cantidad a sumar");
         System.out.println("Stock actual: " + catalogo.reponer(usuarioActual, isbn, cantidad));
     }
-
+    
     private void modificarLibro() throws Exception {
         String isbn = leerTexto("ISBN del libro a modificar");
         System.out.println("Datos actuales: " + formatearLibro(catalogo.consultar(isbn)));
@@ -339,17 +340,17 @@ public class MenuConsola {
         Genero[] generos = Genero.values();
         Genero genero = generos[elegirNumero("Nuevo género", generos)];
         double precio = leerPrecio("Nuevo precio");
-        List<Autor> autores = leerAutores();
+        Set<Autor> autores = leerAutores();
         catalogo.modificarDatos(usuarioActual, isbn, titulo, genero, precio, autores);
         System.out.println("Libro modificado.");
     }
-
+    
     private void bajaLibro() throws Exception {
         String isbn = leerTexto("ISBN del libro a dar de baja");
         catalogo.eliminar(usuarioActual, isbn);
         System.out.println("Libro dado de baja.");
     }
-
+    
     private void verVentas() throws Exception {
         List<Venta> todas = ventas.mostrar(usuarioActual);
         if (todas.isEmpty()) {
@@ -361,21 +362,21 @@ public class MenuConsola {
             System.out.println();
         }
     }
-
+    
     private void anularVenta() throws Exception {
         String id = leerTexto("Id de la venta (por ejemplo V-0001)");
         ventas.eliminar(usuarioActual, id);
         System.out.println("Venta anulada y stock repuesto.");
     }
-
+    
     private void verUsuarios() throws Exception {
         for (Usuario u : usuarios.mostrar(usuarioActual)) {
             System.out.println(u.getDni() + " - " + u.getNombre() + " ("
-                    + u.getClass().getSimpleName() + ", " + u.getEmail() + ") - "
-                    + informarEstado(u.estaActivo()));
+                                       + u.getClass().getSimpleName() + ", " + u.getEmail() + ") - "
+                                       + informarEstado(u.estaActivo()));
         }
     }
-
+    
     private void altaUsuario() throws Exception {
         String[] roles = {"Cliente", "Vendedor", "Administrador"};
         int rol = elegirNumero("Tipo de usuario", roles);
@@ -395,28 +396,26 @@ public class MenuConsola {
         usuarios.agregar(usuarioActual, nuevo);
         System.out.println("Usuario creado con exito.");
     }
-
+    
     private void bajaUsuario() throws Exception {
         String dni = leerTexto("DNI del usuario a dar de baja");
         usuarios.eliminar(usuarioActual, dni);
         System.out.println("Usuario dado de baja.");
     }
-
-    private List<Autor> leerAutores() throws Exception {
-        List<Autor> autores = new ArrayList<>();
+    
+    private Set<Autor> leerAutores() throws Exception {
+        Set<Autor> autores = new LinkedHashSet<>();
         boolean otro = true;
         while (otro) {
             String nombre = leerTexto("Nombre del autor");
             String apellido = leerTexto("Apellido del autor");
             Autor autor = catalogo.guardarAutor(usuarioActual, new Autor(nombre, apellido));
-            if (!autores.contains(autor)) {
-                autores.add(autor);
-            }
+            autores.add(autor);
             otro = leerTexto("¿Agregar otro autor? Presione S en caso afirmativo, N en caso contrario").equalsIgnoreCase("s");
         }
         return autores;
     }
-
+    
     private void imprimirLibros(List<Libro> lista) {
         if (lista.isEmpty()) {
             System.out.println("No se encontraron libros.");
@@ -426,12 +425,12 @@ public class MenuConsola {
             System.out.println(formatearLibro(l));
         }
     }
-
+    
     private String leerTexto(String etiqueta) {
         System.out.print(etiqueta + ": ");
         return entrada.nextLine().trim();
     }
-
+    
     private int leerOpcion() {
         String texto = leerTexto("Elegí una opción");
         try {
@@ -440,7 +439,7 @@ public class MenuConsola {
             return -1;
         }
     }
-
+    
     private int leerEnteroPositivo(String etiqueta) {
         while (true) {
             String texto = leerTexto(etiqueta);
@@ -455,7 +454,7 @@ public class MenuConsola {
             System.out.println("Ingresá un número entero mayor que cero.");
         }
     }
-
+    
     private double leerPrecio(String etiqueta) {
         while (true) {
             String texto = leerTexto(etiqueta);
@@ -470,7 +469,7 @@ public class MenuConsola {
             System.out.println("Ingresá un precio mayor que cero (por ejemplo 12500 o 12500.50).");
         }
     }
-
+    
     private int elegirNumero(String titulo, Object[] opciones) {
         System.out.println(titulo + ":");
         for (int i = 0; i < opciones.length; i++) {
@@ -484,15 +483,15 @@ public class MenuConsola {
             System.out.println("Elegí un número de la lista.");
         }
     }
-
+    
     private String informarEstado(boolean activo) {
         return activo ? "Activo" : "Dado de baja";
     }
-
+    
     private String informarStock(int stock) {
         return stock > 0 ? stock + " disponibles" : "Sin stock";
     }
-
+    
     private String formatearLibro(Libro libro) {
         return libro.getTitulo() + " | Autores: " + libro.getAutores()
                 + " | " + legible(libro.getGenero().name())
@@ -500,7 +499,7 @@ public class MenuConsola {
                 + " | " + informarStock(libro.getStock())
                 + " | ISBN " + libro.getIsbn();
     }
-
+    
     private String formatearVenta(Venta venta) {
         StringBuilder texto = new StringBuilder();
         texto.append("Venta ").append(venta.getId())
@@ -525,7 +524,7 @@ public class MenuConsola {
         }
         return texto.toString();
     }
-
+    
     private String formatearError(Exception error) {
         if (error instanceof SQLException) {
             return "Ocurrió un problema con la base de datos. Intentá de nuevo más tarde.";
@@ -535,7 +534,7 @@ public class MenuConsola {
         }
         return error.getMessage();
     }
-
+    
     private String legible(String nombreEnum) {
         String texto = nombreEnum.toLowerCase().replace('_', ' ');
         return Character.toUpperCase(texto.charAt(0)) + texto.substring(1);

@@ -3,8 +3,8 @@ package Models;
 import Enums.Genero;
 import Exceptions.DatosInvalidosException;
 import Exceptions.StockInsuficienteException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Libro del catálogo. Representa una edición identificada por ISBN,
@@ -18,10 +18,10 @@ public class Libro {
     private double precio;
     private int stock;
     private boolean activo;
-    private final List<Autor> autores;
+    private final Set<Autor> autores;
     
     public Libro(String isbn, String titulo, Genero genero, double precio,
-                 int stock, List<Autor> autores, boolean activo)
+                 int stock, Set<Autor> autores, boolean activo)
             throws DatosInvalidosException {
         validarIsbn(isbn);
         if (titulo == null || titulo.isBlank()) {
@@ -43,7 +43,7 @@ public class Libro {
         this.genero = genero;
         this.precio = precio;
         this.stock = stock;
-        this.autores = new ArrayList<>(autores);
+        this.autores = new LinkedHashSet<>(autores);
         this.activo = activo;
     }
     
@@ -107,8 +107,8 @@ public class Libro {
         return activo;
     }
     
-    public List<Autor> getAutores() {
-        return new ArrayList<>(autores);
+    public Set<Autor> getAutores() {
+        return new LinkedHashSet<>(autores);
     }
     
     /** El ISBN debe tener 10 o 13 caracteres y todos deben ser números. */
